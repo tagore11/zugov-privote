@@ -5,7 +5,7 @@ import { randomBytes } from "node:crypto";
 export const runtime = "nodejs";
 
 export async function GET() {
-  return NextResponse.json({ polls: listPolls() });
+  return NextResponse.json({ polls: await listPolls() });
 }
 
 export async function POST(req: NextRequest) {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const now = Date.now();
   const duration = (durationMinutes ?? 60) * 60_000;
 
-  const poll = createPoll({
+  const poll = await createPoll({
     id,
     title,
     body: text,

@@ -9,7 +9,7 @@ export async function POST(
   ctx: { params: Promise<{ id: string }> }
 ) {
   const { id } = await ctx.params;
-  const poll = getPoll(id);
+  const poll = await getPoll(id);
   if (!poll) return NextResponse.json({ error: "not found" }, { status: 404 });
   if (poll.status === "closed" || Date.now() > poll.endTime) {
     return NextResponse.json({ error: "poll closed" }, { status: 400 });
@@ -60,11 +60,11 @@ export async function POST(
   }
 
   const nullifier = deriveNullifier(voterPubkey, id);
-  if (hasVoted(id, nullifier)) {
+  if (await hasVoted(id, nullifier)) {
     return NextResponse.json({ error: "already voted" }, { status: 409 });
   }
 
-  const result = recordVote({
+  const result = await recordVote({
     pollId: id,
     choice,
     voterPubkey,

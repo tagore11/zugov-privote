@@ -10,12 +10,13 @@ export async function POST(
   ctx: { params: Promise<{ id: string }> }
 ) {
   const { id } = await ctx.params;
-  const poll = getPoll(id);
+  const poll = await getPoll(id);
   if (!poll) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const baseUrl =
-    process.env.LOCAL_LLM_BASE_URL ?? "http://localhost:11434/v1";
-  const model = process.env.LOCAL_LLM_MODEL ?? "qwen2.5:7b";
+    process.env.LLM_BASE_URL ?? "http://localhost:11434/v1";
+  const model = process.env.LLM_MODEL ?? "qwen2.5:7b";
+  const apiKey = process.env.LLM_API_KEY;
 
   try {
     const t0 = Date.now();
@@ -25,7 +26,7 @@ export async function POST(
         title: poll.title,
         text: poll.body,
       },
-      { baseUrl, model, maxTokens: 3072 }
+      { baseUrl, model, apiKey, maxTokens: 3072 }
     );
     const ms = Date.now() - t0;
     const stored = {
@@ -36,7 +37,7 @@ export async function POST(
       engine: "local" as const,
       model,
     };
-    attachGroundingReport(poll.id, stored);
+    await attachGroundingReport(poll.id, stored);
     return NextResponse.json({ report: stored, latencyMs: ms });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

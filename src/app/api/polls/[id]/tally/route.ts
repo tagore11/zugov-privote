@@ -12,7 +12,7 @@ export async function GET(
   ctx: { params: Promise<{ id: string }> }
 ) {
   const { id } = await ctx.params;
-  const poll = getPoll(id);
+  const poll = await getPoll(id);
   if (!poll) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const force = req.nextUrl.searchParams.get("force") === "1";
@@ -26,10 +26,10 @@ export async function GET(
   }
 
   if (force && poll.status !== "closed") {
-    closePoll(poll.id);
+    await closePoll(poll.id);
   }
 
-  const result = tallyPoll(id);
+  const result = await tallyPoll(id);
   return NextResponse.json({
     sealed: false,
     pollId: id,

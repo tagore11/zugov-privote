@@ -4,7 +4,7 @@ import { listPolls } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const polls = listPolls();
+  const polls = await listPolls();
 
   return (
     <div className="space-y-6">
