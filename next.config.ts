@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: [
+    "@zugov/sdk",
+    "better-sqlite3",
+    "@anthropic-ai/sdk",
+  ],
 };
 
 export default nextConfig;
