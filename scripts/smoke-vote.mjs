@@ -6,7 +6,7 @@ ed.hashes.sha512 = sha512;
 
 const POLL_ID = process.argv[2];
 const CHOICE = process.argv[3] ?? "yes";
-const BASE = "http://localhost:3000";
+const BASE = process.env.BASE ?? "http://localhost:3000";
 
 if (!POLL_ID) {
   console.error("Usage: node scripts/smoke-vote.mjs <pollId> [choice]");
