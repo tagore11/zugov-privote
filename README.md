@@ -32,6 +32,21 @@ The Grounding Engine has **zero voting power and zero veto**. Its job is to surf
 
 The MVP is a **MACI-ready stub**: the data flow, role split, and nullifier semantics already match. The zk and encryption layers are the next iteration, not a redesign.
 
+## Position in the ZuGov full stack
+
+This repo is **Layer 0** (epistemic audit) of a six-layer governance protocol. The other layers are being built by parallel teams.
+
+| Layer | What                                                  | Where                                          |
+|-------|-------------------------------------------------------|------------------------------------------------|
+| 0     | Grounding Engine (this repo)                          | tagore11/zugov-privote                         |
+| 1     | Identity (Anon-Aadhaar / Semaphore / Zupass / EAS)    | znurznurznur/maci#frontend                     |
+| 2     | MACI ranked voting (circuits)                         | znurznurznur/maci#main                         |
+| 3     | Coordinator + ZK tally proofs                         | znurznurznur/maci#main                         |
+| 4     | Subgraph indexing + frontend dashboard                | znurznurznur/maci#frontend (also Emre's draft) |
+| 5     | Gamification (epistemic karma, plurality score)       | deferred                                       |
+
+The Layer 1-3 work is led by Dr. Öznur Kalkar (TÜBİTAK BİLGEM UEKAE), forking privacy-ethereum/maci with ranked voting circuits. The integration path is an adapter interface in `src/lib/crypto-server.ts` and `src/lib/voter-client.ts`: the ed25519 stub gets swapped for `@maci-protocol/sdk` once their fork stabilises. Targeted swap window: July-August 2026, ahead of ZuKaş 2026 (Sept 4-19).
+
 ## Stack
 
 - Next.js 16 (App Router) + Turbopack, TypeScript, Tailwind 4
