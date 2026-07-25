@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPoll, recordVote, hasVoted } from "@/lib/db";
 import { verifyVoteSignature, deriveNullifier } from "@/lib/crypto-server";
+import { verifyMessage, isAddress } from "viem";
 
 export const runtime = "nodejs";
 
@@ -50,16 +51,35 @@ export async function POST(
     );
   }
 
-  const ok = await verifyVoteSignature({
-    message,
-    signatureHex: signature,
-    pubkeyHex: voterPubkey,
-  });
+  // Wallet (EIP-191) path — voterPubkey is a 0x address, signature is hex
+  const isWallet =
+    voterPubkey.startsWith("0x") && isAddress(voterPubkey) &&
+    signature.startsWith("0x") && signature.length >= 132;
+
+  let ok = false;
+  if (isWallet) {
+    try {
+      ok = await verifyMessage({
+        address: voterPubkey as `0x${string}`,
+        message,
+        signature: signature as `0x${string}`,
+      });
+    } catch {
+      ok = false;
+    }
+  } else {
+    ok = await verifyVoteSignature({
+      message,
+      signatureHex: signature,
+      pubkeyHex: voterPubkey,
+    });
+  }
   if (!ok) {
     return NextResponse.json({ error: "bad signature" }, { status: 400 });
   }
 
-  const nullifier = deriveNullifier(voterPubkey, id);
+  const normalizedPub = isWallet ? voterPubkey.toLowerCase() : voterPubkey;
+  const nullifier = deriveNullifier(normalizedPub, id);
   if (await hasVoted(id, nullifier)) {
     return NextResponse.json({ error: "already voted" }, { status: 409 });
   }
@@ -67,7 +87,7 @@ export async function POST(
   const result = await recordVote({
     pollId: id,
     choice,
-    voterPubkey,
+    voterPubkey: normalizedPub,
     nullifier,
     signature,
     message,

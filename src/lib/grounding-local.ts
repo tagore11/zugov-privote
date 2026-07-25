@@ -155,15 +155,31 @@ function parseGroundingResponse(text: string): {
   keywords: string[];
   questions: Record<EpistemicQuestionKey, GroundingSection>;
 } {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new GroundingParseError("No JSON object found in LLM response", text);
+  let parsed: Record<string, unknown> | null = null;
+
+  const candidates = extractJsonCandidates(text);
+  let lastError: unknown = null;
+  for (const candidate of candidates) {
+    try {
+      parsed = JSON.parse(candidate) as Record<string, unknown>;
+      break;
+    } catch (e) {
+      lastError = e;
+      // Try a sanitized version (strip control chars, unify quotes, drop trailing commas).
+      try {
+        parsed = JSON.parse(sanitizeJsonish(candidate)) as Record<string, unknown>;
+        break;
+      } catch (e2) {
+        lastError = e2;
+      }
+    }
   }
-  let parsed: Record<string, unknown>;
-  try {
-    parsed = JSON.parse(jsonMatch[0]);
-  } catch {
-    throw new GroundingParseError("Invalid JSON in LLM response", text);
+
+  if (!parsed) {
+    throw new GroundingParseError(
+      `Invalid JSON in LLM response (${lastError instanceof Error ? lastError.message : "unknown"})`,
+      text
+    );
   }
 
   const executiveSummary =
@@ -208,6 +224,42 @@ function parseGroundingResponse(text: string): {
   }
 
   return { executiveSummary, keywords, questions };
+}
+
+/**
+ * Yield candidate JSON substrings to attempt parsing in order:
+ * 1. Content between ```json fences
+ * 2. Content between first `{` and last `}` (balanced)
+ * 3. The raw text itself
+ */
+function* extractJsonCandidates(text: string): Generator<string> {
+  const trimmed = text.trim().replace(/^﻿/, "");
+
+  // Code fences: ```json ... ``` or ``` ... ```
+  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) yield fenceMatch[1].trim();
+
+  // First { ... last }
+  const firstBrace = trimmed.indexOf("{");
+  const lastBrace = trimmed.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    yield trimmed.slice(firstBrace, lastBrace + 1);
+  }
+
+  // Raw
+  yield trimmed;
+}
+
+/** Quick fixes for common LLM-produced not-quite-JSON. */
+function sanitizeJsonish(s: string): string {
+  return s
+    // smart quotes → straight
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    // strip control chars except \n, \r, \t (which JSON.parse handles inside strings if escaped, but raw newlines in strings break it — escape them)
+    .replace(/[ --]/g, "")
+    // trailing commas before } or ]
+    .replace(/,\s*([}\]])/g, "$1");
 }
 
 export class GroundingParseError extends Error {

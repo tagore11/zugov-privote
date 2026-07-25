@@ -45,7 +45,7 @@ This repo is **Layer 0** (epistemic audit) of a six-layer governance protocol. T
 | 4     | Subgraph indexing + frontend dashboard                | znurznurznur/maci#frontend (also Emre's draft) |
 | 5     | Gamification (epistemic karma, plurality score)       | deferred                                       |
 
-The Layer 1-3 work is led by Dr. Öznur Kalkar (TÜBİTAK BİLGEM UEKAE), forking privacy-ethereum/maci with ranked voting circuits. The integration path is an adapter interface in `src/lib/crypto-server.ts` and `src/lib/voter-client.ts`: the ed25519 stub gets swapped for `@maci-protocol/sdk` once their fork stabilises. Targeted swap window: July-August 2026, ahead of ZuKaş 2026 (Sept 4-19).
+The Layer 1-3 work is led by Dr. Öznur Kalkar (TÜBİTAK BİLGEM UEKAE), forking privacy-ethereum/maci with ranked voting circuits. The integration path is an adapter interface in `src/lib/crypto-server.ts` and `src/lib/voter-client.ts`: the ed25519 stub gets swapped for `@maci-protocol/sdk` once their fork stabilises. Targeted swap window: July-August 2026, ahead of ZuKaş 2026 (Sept 9-20).
 
 ## Stack
 

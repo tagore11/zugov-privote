@@ -1,26 +1,262 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* PATARA EDITORIAL — warmer cream, sharper ink */
+  --color-canvas: #f7f3e8;       /* slightly brighter lime-wash */
+  --color-surface: #fdfaf0;      /* lighter paper, cards & plates */
+  --color-ink: #0e0a07;           /* darkened to near-black for max contrast */
+  --color-ink-soft: #2a2520;     /* body-secondary, still WCAG AA strong */
+  --color-ink-muted: #5a514a;    /* marginalia darker — readable */
+  --color-rule: #c8bfa8;         /* limestone shadow hairline */
+  --color-rule-soft: #e6dec8;
+  --color-iron: #8b1f1f;         /* THE accent — Lycian polychrome */
+  --color-iron-soft: #a64545;
+  --color-iron-deep: #5e1010;
+  --color-lichen: #4d5a36;       /* supportive olive, deeper */
+  --color-lapis: #1e3a5f;        /* footer & closing seals */
+
+  /* Type — distinctive but proven readable */
+  --font-display: var(--font-eb-garamond), ui-serif, Garamond, "Times New Roman", serif;
+  --font-body: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "IBM Plex Mono", Menlo, monospace;
+
+  /* No rounded SaaS — sharper radii */
+  --radius-md: 2px;
+  --radius-xl: 4px;
+  --radius-3xl: 999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root { color-scheme: light; }
+
+html, body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Paper grain — subtle noise overlay */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.72;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* No paper grain — was eating text contrast. Clean canvas. */
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+h1 {
+  font-size: clamp(36px, 6.5vw, 72px);
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+h2 {
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.1;
+  font-weight: 400;
+}
+h3 {
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.2;
+}
+
+p { line-height: 1.72; }
+p, li { color: var(--color-ink); }
+
+code, kbd, samp, pre, .mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "ss01" on;
+}
+
+::selection {
+  background: var(--color-iron);
+  color: var(--color-surface);
+}
+
+.hairline { border-color: var(--color-rule); }
+
+/* DROP CAP — the signature element */
+.dropcap-letter {
+  font-family: var(--font-display);
+  color: var(--color-iron);
+  font-weight: 400;
+  line-height: 0.85;
+  font-size: clamp(150px, 28vw, 320px);
+  letter-spacing: -0.04em;
+  display: block;
+  animation: ink-fill 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ink-fill {
+  0% { opacity: 0; transform: scale(0.94); filter: blur(2px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* MARGINALIA — small mono notes / decorative labels */
+.marginalia {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+/* INFO — readable lowercase mono for info rows */
+.info {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--color-ink-soft);
+}
+
+/* LEDE — large readable subhead/tagline for hero */
+.lede {
+  font-family: var(--font-body);
+  font-size: clamp(18px, 1.6vw, 21px);
+  line-height: 1.55;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+
+/* FOLIO — proposal-as-manuscript-page */
+.folio-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-iron);
+}
+
+/* DINGBAT — section break ornament */
+.dingbat {
+  font-family: var(--font-display);
+  color: var(--color-iron);
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.5em;
+  text-align: center;
+  display: block;
+  margin: 0;
+}
+
+/* PLATE — archaeological figure with caption */
+.plate {
+  border: 1px solid var(--color-rule);
+  background: var(--color-surface);
+  position: relative;
+}
+.plate-caption {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--color-ink-soft);
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-rule);
+  background: var(--color-surface);
+  line-height: 1.45;
+}
+.plate-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-iron);
+  background: var(--color-surface);
+  padding: 4px 8px;
+  border: 1px solid var(--color-rule);
+}
+
+/* RULES — manuscript hairlines */
+.rule-thin { border-top: 1px solid var(--color-rule); }
+.rule-thick { border-top: 2px solid var(--color-ink); }
+
+/* Page transitions — staggered ink reveals */
+.reveal-1 { animation: reveal 600ms 0ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.reveal-2 { animation: reveal 600ms 90ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.reveal-3 { animation: reveal 600ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.reveal-4 { animation: reveal 600ms 270ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.reveal-5 { animation: reveal 600ms 360ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* PEBBLE RIPPLE — vote action */
+@keyframes pebble-ripple {
+  0% { transform: scale(0); opacity: 0.45; }
+  100% { transform: scale(4); opacity: 0; }
+}
+.pebble-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: currentColor;
+  animation: pebble-ripple 700ms ease-out;
+}
+
+/* Buttons & action surfaces */
+.btn-iron {
+  background: var(--color-iron);
+  color: var(--color-surface);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  border: none;
+  cursor: pointer;
+  transition: background 200ms ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-iron:hover:not(:disabled) { background: var(--color-iron-deep); }
+.btn-iron:disabled { background: var(--color-rule); color: var(--color-ink-muted); cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 13px 23px;
+  border: 1px solid var(--color-ink);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.btn-outline:hover { background: var(--color-ink); color: var(--color-surface); }
+
+/* Mobile tap targets */
+@media (max-width: 640px) {
+  button, a[role="button"] { min-height: 44px; }
+}
+
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Link underline — manuscript style */
+.link-underline {
+  text-decoration: underline;
+  text-decoration-color: var(--color-iron);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+* { scrollbar-color: var(--color-rule) var(--color-canvas); }
